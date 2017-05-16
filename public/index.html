@@ -24,6 +24,10 @@
                     <label for="product-price">Price</label>
                     <input type="number" class="form-control" id="product-price" required min="0" step="0.01" ng-model="formItem.price">
                 </div>
+                <div class="form-group">
+                    <label for="product-quantity">Quantity</label>
+                    <input type="number" class="form-control" id="product-price" required min="0" step="1" ng-model="formItem.quantity">
+                </div>
                 <button type="submit" class="btn btn-primary">Add to Cart</button>
             </form>
 
@@ -32,15 +36,36 @@
                     <tr>
                         <th>Product</th>
                         <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Total Price</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="item in items" ng-cloak>
-                        <td>{{item.product}}</td>
-                        <td>{{item.price | currency}}</td>
-                        <td><button type="button" class="btn btn-default" ng-click="deleteItem(item)">Delete</button></td>
+                    <tr ng-repeat="item in items | orderBy: 'id'" ng-switch="item.fields" ng-cloak>
+                        <td ng-switch-when="istable">{{item.product}}</td>
+                        <td ng-switch-when="istable">{{item.price | currency}}</td>
+                        <td ng-switch-when="istable">{{item.quantity}}</td>
+
+                        <td ng-switch-when="isform"><input type="text" class="form-control" ng-model="item.product" required></td>
+                        <td ng-switch-when="isform"><input type="number" class="form-control" ng-model="item.price" required min="0" step="0.01"></td>
+                        <td ng-switch-when="isform"><input type="number" class="form-control" ng-model="item.quantity" required min="0" step="1"></td>
+
+                        <td>{{item.price * item.quantity | currency}}</td>
+
+                        <td>
+                          <button ng-switch-when="istable" type="button" class="btn btn-default" ng-click="switchStatus(item)">Edit</button>
+                          <button ng-switch-when="isform" type="button" class="btn btn-default" ng-click="switchStatus(item)">Cancel</button>
+                          <button type="button" class="btn btn-default" ng-click="deleteItem(item)">Delete</button>
+                          <button type="button" class="btn btn-default" ng-click="updateItem(item)" ng-switch-when="isform" type="submit">Submit</button>
+                        </td>
                     </tr>
+                    <tfoot>
+                      <tr>
+                        <td colspan="3">Total:</td>
+                        <td colspan="2">{{total | currency}}</td>
+                      </tr>
+                    </tfoot>
                 </tbody>
             </table>
         </div>

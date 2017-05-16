@@ -3,10 +3,16 @@ app.controller("cartController", function($scope, cartService) {
     // Start the form off empty on page load.
     $scope.formItem = {};
 
+    // made this a function bc it was getting reused so often
+    function updateCart() {
+      cartService.getAllItems().then(function(items) {
+          $scope.items = items;
+          $scope.total = cartService.getTotal($scope.items);
+      });
+    }
+
     // Load the cart data on page load.
-    cartService.getAllItems().then(function(items) {
-        $scope.items = items;
-    });
+    updateCart();
 
     // Function on scope called when form is submitted.
     $scope.addItem = function(item) {
@@ -15,9 +21,7 @@ app.controller("cartController", function($scope, cartService) {
             $scope.formItem = {};
 
             // Update the list with the new set of items.
-            cartService.getAllItems().then(function(items) {
-                $scope.items = items;
-            });
+            updateCart();
         });
     };
 
@@ -25,10 +29,23 @@ app.controller("cartController", function($scope, cartService) {
     $scope.deleteItem = function(item) {
         cartService.deleteItem(item.id).then(function() {
             // Update the list with the new set of items.
-            cartService.getAllItems().then(function(items) {
-                $scope.items = items;
-            });
+            updateCart();
         });
+    };
+
+    $scope.switchStatus = function(item) {
+      item.fields = (item.fields === "istable") ? "isform" : "istable";
+    };
+
+    // BONUS
+    $scope.updateItem = function(item) {
+      if (item.product == undefined || item.price == (undefined || 0) || item.quantity == (undefined || 0) ) {
+        return false;
+      } else {
+        cartService.updateItem(item).then(function() {
+          updateCart();
+        });
+      }
     };
 
 });
